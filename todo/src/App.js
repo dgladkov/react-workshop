@@ -72,9 +72,9 @@ class App extends Component {
             return (
               <TodoList
                 todoList={this.state.todoLists.get(match.params.index)}
-                createNewTodo={this.createNewTodo.bind(this, match.params.index)}
-                toggleCompleteTodo={this.toggleCompleteTodo.bind(this, match.params.index)}
-                removeTodo={this.removeTodo.bind(this, match.params.index)}
+                createNewTodo={(text) => this.createNewTodo(match.params.index, text)}
+                toggleCompleteTodo={(index) => this.toggleCompleteTodo(match.params.index, index)}
+                removeTodo={(index) => this.removeTodo(match.params.index, index)}
               />
             );
           }}/>
