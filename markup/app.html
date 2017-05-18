@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>Todo app</title>
+    <title>Todo App</title>
     <link rel="stylesheet" href="./app.css" />
   </head>
   <body>
@@ -8,7 +8,7 @@
       <h2>Thursday tasks</h2>
       <ul>
         <li>
-          <p data-checked>Buy milk</p>
+          <p class="checked">Buy milk</p>
           <button>
             Delete item
           </button>
@@ -26,10 +26,12 @@
     <div id="todo-app">
       <h2>Your todo lists</h2>
       <ul>
-        <li><a href="">Thursday tasks</a></li>
-        <li><a href="">Shopping list</a></li>
-        <li><a href="">Birthday</a></li>
+        <li><a href="">Thursday tasks</a> <span class="progress">2/12</span></li>
+        <li><a href="">Shopping list</a> <span class="progress">1/2</span></li>
+        <li><a href="">Birthday</a> <span class="progress">1/2</span></li>
       </ul>
+      <input placeholder="New list" />
+      <button>Create list</button>
     </div>
     <div id="todo-app">
       <h2>Log in</h2>
