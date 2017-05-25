@@ -1,4 +1,10 @@
 import React, { Component } from 'react';
+import { OrderedMap, Record } from 'immutable';
+
+const TodoRecord = Record({
+  text: '',
+  complete: false,
+}, 'TodoRecord');
 
 let currentIndex = 0;
 function getNextIndex() {
@@ -10,7 +16,7 @@ class App extends Component {
     super(props);
     this.state = {
       title: 'Hello world',
-      todos: [],
+      todos: OrderedMap(),
       newTodoText: '',
     };
     this.changeNewTodoText = this.changeNewTodoText.bind(this);
@@ -24,30 +30,27 @@ class App extends Component {
   }
 
   createNewTodo() {
+    if (!this.state.newTodoText) {
+      return;
+    }
+    const newId = getNextIndex();
     this.setState({
-      todos: [...this.state.todos, {
-        id: getNextIndex(),
+      todos: this.state.todos.set(newId, TodoRecord({
         text: this.state.newTodoText,
-        complete: false,
-      }],
+      })),
       newTodoText: '',
     });
   }
 
   toggleTodoItem(id) {
     this.setState({
-      todos: this.state.todos.map(todo => {
-        if (id === todo.id) {
-          return {...todo, complete: !todo.complete};
-        }
-        return todo;
-      }),
+      todos: this.state.todos.updateIn([id, 'complete'], x => !x),
     });
   }
 
   deleteTodoItem(id) {
     this.setState({
-      todos: this.state.todos.filter(todo => todo.id !== id),
+      todos: this.state.todos.delete(id),
     });
   }
 
@@ -56,15 +59,15 @@ class App extends Component {
       <div id="todo-app">
         <h2>Thursday tasks</h2>
         <ul>
-          {this.state.todos.map((todo) => (
-            <li key={todo.id}>
+          {this.state.todos.map((todo, id) => (
+            <li key={id}>
               <p
-                onClick={() => this.toggleTodoItem(todo.id)}
+                onClick={() => this.toggleTodoItem(id)}
                 className={todo.complete ? 'checked' : null}
               >
                 {todo.text}
               </p>
-              <button onClick={() => this.deleteTodoItem(todo.id)}>
+              <button onClick={() => this.deleteTodoItem(id)}>
                 Delete item
               </button>
             </li>
