@@ -1,85 +1,95 @@
 import React, { Component } from 'react';
+import {
+  BrowserRouter as Router,
+  Route,
+} from 'react-router-dom';
 import { OrderedMap, Record } from 'immutable';
+import TodoList from './TodoList';
+import ListIndex from './ListIndex';
 
 const TodoRecord = Record({
   text: '',
   complete: false,
 }, 'TodoRecord');
 
-let currentIndex = 0;
-function getNextIndex() {
-  return ++currentIndex;
-}
+const TodoListRecord = Record({
+  title: '',
+  todos: OrderedMap(),
+}, 'TodoListRecord');
+
+const generator = x => () => ++x;
+const nextTodoListId = generator(0);
+const nextTodoId = generator(0);
 
 class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      title: 'Hello world',
-      todos: OrderedMap(),
-      newTodoText: '',
+      todoLists: OrderedMap(),
     };
-    this.changeNewTodoText = this.changeNewTodoText.bind(this);
-    this.createNewTodo = this.createNewTodo.bind(this);
+    this.createNewTodoList = this.createNewTodoList.bind(this);
   }
 
-  changeNewTodoText(e) {
+  createNewTodoList(title) {
     this.setState({
-      newTodoText: e.target.value,
-    });
-  }
-
-  createNewTodo() {
-    if (!this.state.newTodoText) {
-      return;
-    }
-    const newId = getNextIndex();
-    this.setState({
-      todos: this.state.todos.set(newId, TodoRecord({
-        text: this.state.newTodoText,
+      todoLists: this.state.todoLists.set(nextTodoListId(), TodoListRecord({
+        title,
       })),
-      newTodoText: '',
     });
   }
 
-  toggleTodoItem(id) {
+  createNewTodo = (todoListId, text) => {
     this.setState({
-      todos: this.state.todos.updateIn([id, 'complete'], x => !x),
+      todoLists: this.state.todoLists.setIn(
+        [todoListId, 'todos', nextTodoId()],
+        TodoRecord({ text, })
+      ),
     });
-  }
+  };
 
-  deleteTodoItem(id) {
+  toggleTodoItem = (todoListId, todoId) => {
     this.setState({
-      todos: this.state.todos.delete(id),
+      todoLists: this.state.todoLists.updateIn([todoListId, 'todos', todoId, 'complete'], x => !x),
     });
-  }
+  };
+
+  deleteTodoItem = (todoListId, todoId) => {
+    this.setState({
+      todoLists: this.state.todoLists.deleteIn([todoListId, 'todos', todoId]),
+    });
+  };
 
   render() {
     return (
-      <div id="todo-app">
-        <h2>Thursday tasks</h2>
-        <ul>
-          {this.state.todos.map((todo, id) => (
-            <li key={id}>
-              <p
-                onClick={() => this.toggleTodoItem(id)}
-                className={todo.complete ? 'checked' : null}
-              >
-                {todo.text}
-              </p>
-              <button onClick={() => this.deleteTodoItem(id)}>
-                Delete item
-              </button>
-            </li>
-          ))}
-        </ul>
-        <input
-          placeholder="New todo"
-          onChange={this.changeNewTodoText}
-          value={this.state.newTodoText}
-        />
-        <button onClick={this.createNewTodo}>Add item</button>
-      </div>
+      <Router>
+        <div>
+          <Route exact path="/" render={() => (
+            <ListIndex
+              todoLists={this.state.todoLists}
+              createNewTodoList={this.createNewTodoList}
+            />
+          )}
+          />
+          <Route path="/list/:id" render={({ match }) => {
+            const id = parseInt(match.params.id, 10);
+            const todoList = this.state.todoLists.get(id);
+            if (!todoList) {
+              return <div>404</div>
+            }
+            return (
+              <TodoList
+                id={id}
+                title={todoList.title}
+                todos={todoList.todos}
+                createNewTodo={this.createNewTodo}
+                toggleTodoItem={this.toggleTodoItem}
+                deleteTodoItem={this.deleteTodoItem}
+              />
+            );
+          }}
+          />
+        </div>
+      </Router>
     );
   }
 }
