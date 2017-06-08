@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
+import { createTodoList } from '../actions/todoLists';
 
 class ListIndex extends Component {
 
@@ -12,7 +14,7 @@ class ListIndex extends Component {
     if (!this._input.value) {
       return;
     }
-    this.props.createNewTodoList(this._input.value);
+    this.props.createTodoList(this._input.value);
     this._input.value = '';
   }
 
@@ -41,4 +43,14 @@ class ListIndex extends Component {
   }
 }
 
-export default ListIndex;
+function mapStateToProps(state) {
+  return {
+    todoLists: state.todoLists,
+  };
+}
+
+const mapDispatchToProps = {
+  createTodoList,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(ListIndex);

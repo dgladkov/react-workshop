@@ -1,4 +1,6 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { createTodoItem, toggleTodoItem, deleteTodoItem } from '../actions/todoLists';
 
 class TodoList extends Component {
   constructor(props) {
@@ -20,7 +22,7 @@ class TodoList extends Component {
     if (!this.state.newTodoText) {
       return;
     }
-    this.props.createNewTodo(this.props.id, this.state.newTodoText);
+    this.props.createTodoItem(this.props.id, this.state.newTodoText);
     this.setState({
       newTodoText: '',
     });
@@ -56,4 +58,23 @@ class TodoList extends Component {
   }
 }
 
-export default TodoList;
+function mapStateToProps(state, { match }) {
+  const id = parseInt(match.params.id, 10);
+  const todoList = state.todoLists.get(id);
+  if (todoList) {
+    return {
+      id: id,
+      title: todoList.title,
+      todos: todoList.todos,
+    }
+  }
+  return {}
+}
+
+const mapDispatchToProps = {
+  createTodoItem,
+  toggleTodoItem,
+  deleteTodoItem,
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(TodoList);
