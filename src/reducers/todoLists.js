@@ -11,6 +11,23 @@ const TodoListRecord = Record({
   todos: OrderedMap(),
 }, 'TodoListRecord');
 
+function loadTodos(todos) {
+  return OrderedMap(todos.map(todo => [
+    todo._id,
+    TodoRecord({
+      text: todo.text,
+      complete: todo.complete,
+    }),
+  ]));
+}
+
+function loadTodoLists(lists) {
+  return OrderedMap(lists.map(list => [list._id, TodoListRecord({
+    title: list.title,
+    todos: loadTodos(list.items)
+  })]))
+}
+
 const incrementor = x => () => ++x;
 const nextTodoListId = incrementor(0);
 const nextTodoId = incrementor(0);
@@ -28,7 +45,10 @@ export default function todoLists(state = OrderedMap(), action) {
       return state.updateIn([action.payload.listId, 'todos', action.payload.todoId, 'complete'], x => !x);
     case types.DELETE_TODO_ITEM:
       return state.deleteIn([action.payload.listId, 'todos', action.payload.todoId]);
+    case types.LOAD_TODO_LISTS:
+      return loadTodoLists(action.payload);
     default:
       return state;
   }
 }
+

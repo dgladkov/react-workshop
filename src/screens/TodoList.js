@@ -59,11 +59,10 @@ class TodoList extends Component {
 }
 
 function mapStateToProps(state, { match }) {
-  const id = parseInt(match.params.id, 10);
-  const todoList = state.todoLists.get(id);
+  const todoList = state.todoLists.get(match.params.id);
   if (todoList) {
     return {
-      id: id,
+      id: match.params.id,
       title: todoList.title,
       todos: todoList.todos,
     }
